@@ -9,7 +9,7 @@
 import Foundation
 
 protocol CoinManagerDelegate {
-    func didUpdateWeather()
+    func didUpdateCoin(_ coinManager: CoinManager, coinData: CoinModel)
     func didFailWithError(error: Error)
 }
 
@@ -27,25 +27,23 @@ struct CoinManager {
         let url = "\(baseURL)/\(currency)/?apikey=\(apiKey)"
         getData(with: url)
     }
-        
+    
     func getData(with url: String) {
         
         if let url = URL(string: url) {
             let session = URLSession(configuration: .default)
             let task = session.dataTask(with: url) { data, response, error in
-
+                
                 if error != nil {
-                    //delegate?.didFailWithError(error: error!)
-                    print(error!)
+                    delegate?.didFailWithError(error: error!)
                     return
                 }
                 
                 if let safeData = data {
                     print(self.parseJSON(safeData)!)
-//                    if let weather = self.parseJSON(safeData) {
-//                        print(weather)
-////                        delegate?.didUpdateWeather(self, weather: weather)
-//                    }
+                    if let coinData = self.parseJSON(safeData) {
+                        delegate?.didUpdateCoin(self, coinData: coinData)
+                    }
                 }
             }
             task.resume()
@@ -53,14 +51,14 @@ struct CoinManager {
         
     }
     
-    func parseJSON(_ data: Data) -> CoinData? {
+    func parseJSON(_ data: Data) -> CoinModel? {
         let decoder = JSONDecoder()
         do {
             let decodedData = try decoder.decode(CoinData.self, from: data)
-            return decodedData
-
+            return CoinModel(currency: decodedData.asset_id_quote, price: decodedData.rate)
+            
         } catch {
-//            delegate?.didFailWithError(error: error)
+            delegate?.didFailWithError(error: error)
             return nil
         }
     }
