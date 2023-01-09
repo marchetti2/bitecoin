@@ -41,9 +41,10 @@ struct CoinManager {
                 }
                 
                 if let safeData = data {
-                    print(String(data: safeData, encoding: .utf8)!)
+                    print(self.parseJSON(safeData)!)
 //                    if let weather = self.parseJSON(safeData) {
-//                        delegate?.didUpdateWeather(self, weather: weather)
+//                        print(weather)
+////                        delegate?.didUpdateWeather(self, weather: weather)
 //                    }
                 }
             }
@@ -52,20 +53,15 @@ struct CoinManager {
         
     }
     
-//    func parseJSON(_ data: Data) -> WeatherModel? {
-//        let decoder = JSONDecoder()
-//        do {
-//            let decodedData = try decoder.decode(WeatherData.self, from: data)
-//            let id = decodedData.weather[0].id
-//            let temp = decodedData.main.temp
-//            let name = decodedData.name
-//
-//            let weather = WeatherModel(conditionId: id, temperature: temp, cityName: name)
-//            return weather
-//
-//        } catch {
+    func parseJSON(_ data: Data) -> CoinData? {
+        let decoder = JSONDecoder()
+        do {
+            let decodedData = try decoder.decode(CoinData.self, from: data)
+            return decodedData
+
+        } catch {
 //            delegate?.didFailWithError(error: error)
-//            return nil
-//        }
-//    }
+            return nil
+        }
+    }
 }
